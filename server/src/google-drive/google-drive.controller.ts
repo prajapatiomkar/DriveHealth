@@ -7,7 +7,10 @@ export class GoogleDriveController {
 
   @Post('create-patient-file')
   async createPatientFile(@Body() patientData: any) {
-    return this.googleDriveService.createPatientSheet(patientData);
+    return this.googleDriveService.createPatientSheet(
+      patientData,
+      patientData.selectedSheetId,
+    );
   }
   @Get('patients')
   async getPatients(@Query('selectedSheetId') selectedSheetId: string) {

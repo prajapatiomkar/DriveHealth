@@ -21,9 +21,6 @@ export class GoogleDriveService {
       if (selectedSheetId) {
         sheetIdToUse = selectedSheetId;
         this.logger.log(`Using selected sheet ID: ${sheetIdToUse}`);
-      } else {
-        sheetIdToUse = await this.createNewGoogleSheet();
-        this.logger.log(`Created new sheet ID: ${sheetIdToUse}`);
       }
 
       const sheets = await this.getSheetsInstance();
