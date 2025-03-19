@@ -7,7 +7,7 @@ import {
   Box,
   Typography,
 } from "@mui/material";
-import { NavLink, Outlet } from "react-router";
+import { NavLink, Outlet } from "react-router"; // Correct import
 
 export default function Dashboard() {
   return (
@@ -33,14 +33,14 @@ export default function Dashboard() {
         <List>
           {[
             { text: "Add Patients", path: "add-patients" },
-            { text: "Edit Patients", path: "edit-patients" },
+            { text: "Patient List", path: "patients" }, // Corrected path
             { text: "Search Patients", path: "search" },
             { text: "Select File", path: "select-file" },
           ].map(({ text, path }) => (
             <NavLink
               key={text}
               to={path}
-              style={({ isActive }) => ({
+              style={({ isActive }: any) => ({
                 textDecoration: "none", // Remove underline
                 color: isActive ? "#1976d2" : "black", // Active color
               })}

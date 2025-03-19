@@ -28,7 +28,8 @@ export class GoogleDriveService {
 
       const sheets = await this.getSheetsInstance();
 
-      await this.ensureSheetExists(sheets, sheetIdToUse, 'Patient', [
+      // Ensure the single sheet exists with combined headers
+      await this.ensureSheetExists(sheets, sheetIdToUse, 'PatientData', [
         'patientId',
         'patientName',
         'location',
@@ -36,21 +37,17 @@ export class GoogleDriveService {
         'gender',
         'phone',
         'address',
-      ]);
-      await this.ensureSheetExists(sheets, sheetIdToUse, 'Prescription', [
         'prescription',
         'dose',
         'visitDate',
         'nextVisit',
-      ]);
-      await this.ensureSheetExists(sheets, sheetIdToUse, 'Physician', [
         'physicianId',
         'physicianName',
         'physicianNumber',
         'bill',
       ]);
 
-      const patientSheetValues = [
+      const combinedData = [
         patientData.patientId,
         patientData.patientName,
         patientData.location,
@@ -58,14 +55,10 @@ export class GoogleDriveService {
         patientData.gender,
         patientData.phone,
         patientData.address,
-      ];
-      const prescriptionSheetValues = [
         patientData.prescription,
         patientData.dose,
         patientData.visitDate,
         patientData.nextVisit,
-      ];
-      const physicianSheetValues = [
         patientData.physicianId,
         patientData.physicianName,
         patientData.physicianNumber,
@@ -75,24 +68,12 @@ export class GoogleDriveService {
       await this.appendOrUpdateRow(
         sheets,
         sheetIdToUse,
-        'Patient',
-        patientSheetValues,
-      );
-      await this.appendOrUpdateRow(
-        sheets,
-        sheetIdToUse,
-        'Prescription',
-        prescriptionSheetValues,
-      );
-      await this.appendOrUpdateRow(
-        sheets,
-        sheetIdToUse,
-        'Physician',
-        physicianSheetValues,
+        'PatientData',
+        combinedData,
       );
 
       return {
-        message: '✅ Patient data appended to sheets',
+        message: '✅ Patient data appended to sheet',
         sheetId: sheetIdToUse,
       };
     } catch (error) {
@@ -111,7 +92,7 @@ export class GoogleDriveService {
     const response = await sheets.spreadsheets.create({
       requestBody: {
         properties: {
-          title: 'Patient Data Sheet',
+          title: 'Combined Patient Data',
         },
       },
     });
@@ -236,5 +217,168 @@ export class GoogleDriveService {
     });
     await auth.authorize();
     return google.sheets({ version: 'v4', auth });
+  }
+  async getAllPatients(selectedSheetId: string) {
+    const sheets = await this.getSheetsInstance();
+
+    try {
+      const range = 'PatientData'; // Get all data from the PatientData sheet
+      const response = await sheets.spreadsheets.values.get({
+        spreadsheetId: selectedSheetId,
+        range: range,
+      });
+
+      const values = response.data.values || [];
+      const headers = values[0] || [];
+      const patientData = [];
+
+      for (let i = 1; i < values.length; i++) {
+        const patient = {};
+        for (let j = 0; j < headers.length; j++) {
+          patient[headers[j]] = values[i][j];
+        }
+        patientData.push(patient);
+      }
+
+      return patientData;
+    } catch (error) {
+      this.logger.error(
+        `Error getting all patients: ${error.message}`,
+        error.stack,
+      );
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+  async getPatientData(patientId: string, selectedSheetId: string) {
+    const sheets = await this.getSheetsInstance();
+
+    try {
+      const range = 'PatientData!A:A';
+      const response = await sheets.spreadsheets.values.get({
+        spreadsheetId: selectedSheetId,
+        range: range,
+      });
+
+      const existingRows = response.data.values || [];
+      let rowIndex = -1;
+
+      for (let i = 0; i < existingRows.length; i++) {
+        if (existingRows[i][0] === patientId) {
+          rowIndex = i + 1;
+          break;
+        }
+      }
+
+      if (rowIndex === -1) {
+        throw new HttpException('Patient not found', HttpStatus.NOT_FOUND);
+      }
+
+      const rowRange = `PatientData!A${rowIndex}:${String.fromCharCode(
+        64 + 15, // Assuming 15 columns
+      )}${rowIndex}`;
+
+      console.log('Row Range: ', rowRange);
+
+      const rowResponse = await sheets.spreadsheets.values.get({
+        spreadsheetId: selectedSheetId,
+        range: rowRange,
+      });
+
+      const patientData = rowResponse.data.values[0];
+
+      console.log('Patient Data: ', patientData);
+
+      return {
+        patientId: patientData[0],
+        patientName: patientData[1],
+        location: patientData[2],
+        age: patientData[3],
+        gender: patientData[4],
+        phone: patientData[5],
+        address: patientData[6],
+        prescription: patientData[7],
+        dose: patientData[8],
+        visitDate: patientData[9],
+        nextVisit: patientData[10],
+        physicianId: patientData[11],
+        physicianName: patientData[12],
+        physicianNumber: patientData[13],
+        bill: patientData[14],
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error getting patient data: ${error.message}`,
+        error.stack,
+      );
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async updatePatientData(
+    patientId: string,
+    patientData: any,
+    selectedSheetId: string,
+  ) {
+    const sheets = await this.getSheetsInstance();
+
+    try {
+      const range = 'PatientData!A:A'; // Assuming patientId is in column A
+      const response = await sheets.spreadsheets.values.get({
+        spreadsheetId: selectedSheetId,
+        range: range,
+      });
+
+      const existingRows = response.data.values || [];
+      let rowIndex = -1;
+
+      for (let i = 0; i < existingRows.length; i++) {
+        if (existingRows[i][0] === patientId) {
+          rowIndex = i + 1; // Row index is 1-based
+          break;
+        }
+      }
+
+      if (rowIndex === -1) {
+        throw new HttpException('Patient not found', HttpStatus.NOT_FOUND);
+      }
+
+      const updateRange = `PatientData!A${rowIndex}:${String.fromCharCode(
+        64 + Object.values(patientData).length,
+      )}${rowIndex}`;
+
+      const updatedValues = [
+        patientData.patientName,
+        patientData.location,
+        patientData.age,
+        patientData.gender,
+        patientData.phone,
+        patientData.address,
+        patientData.prescription,
+        patientData.dose,
+        patientData.visitDate,
+        patientData.nextVisit,
+        patientData.physicianName,
+        patientData.physicianNumber,
+        patientData.bill,
+      ];
+      updatedValues.unshift(patientId);
+
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: selectedSheetId,
+        range: updateRange,
+        valueInputOption: 'USER_ENTERED',
+        requestBody: {
+          values: [updatedValues],
+        },
+      });
+
+      return { message: 'Patient data updated successfully' };
+    } catch (error) {
+      this.logger.error(
+        `Error updating patient data: ${error.message}`,
+        error.stack,
+      );
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
