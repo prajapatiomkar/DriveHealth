@@ -378,4 +378,67 @@ export class GoogleDriveService {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async searchPatientById(patientId: string, selectedSheetId: string) {
+    const sheets = await this.getSheetsInstance();
+
+    try {
+      const range = 'PatientData!A:A'; // Assuming patientId is in column A
+      const response = await sheets.spreadsheets.values.get({
+        spreadsheetId: selectedSheetId,
+        range: range,
+      });
+
+      const existingRows = response.data.values || [];
+      let rowIndex = -1;
+
+      for (let i = 0; i < existingRows.length; i++) {
+        if (existingRows[i][0] === patientId) {
+          rowIndex = i + 1; // Row index is 1-based
+          break;
+        }
+      }
+
+      if (rowIndex === -1) {
+        return []; // Return empty array if patient not found
+      }
+
+      const rowRange = `PatientData!A${rowIndex}:${String.fromCharCode(
+        64 + 15, // Assuming 15 columns
+      )}${rowIndex}`;
+
+      const rowResponse = await sheets.spreadsheets.values.get({
+        spreadsheetId: selectedSheetId,
+        range: rowRange,
+      });
+
+      const patientData = rowResponse.data.values[0];
+
+      return [
+        {
+          patientId: patientData[0],
+          patientName: patientData[1],
+          location: patientData[2],
+          age: patientData[3],
+          gender: patientData[4],
+          phone: patientData[5],
+          address: patientData[6],
+          prescription: patientData[7],
+          dose: patientData[8],
+          visitDate: patientData[9],
+          nextVisit: patientData[10],
+          physicianId: patientData[11],
+          physicianName: patientData[12],
+          physicianNumber: patientData[13],
+          bill: patientData[14],
+        },
+      ];
+    } catch (error) {
+      this.logger.error(
+        `Error searching patient by ID: ${error.message}`,
+        error.stack,
+      );
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

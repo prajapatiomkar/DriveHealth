@@ -37,4 +37,15 @@ export class GoogleDriveController {
       selectedSheetId,
     );
   }
+
+  @Get('search-patient-by-id')
+  async searchPatientById(
+    @Query('patientId') patientId: string,
+    @Query('selectedSheetId') selectedSheetId: string,
+  ) {
+    return this.googleDriveService.searchPatientById(
+      patientId,
+      selectedSheetId,
+    );
+  }
 }
