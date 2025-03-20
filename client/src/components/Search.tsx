@@ -71,8 +71,8 @@ export default function Search() {
           Search
         </Button>
       </Box>
-      {searchResults.length === 0 && searchTerm !== "" ? (
-        <Typography variant="body1" align="center">
+      {searchResults.length === 0 ? (
+        <Typography variant="body1" align="center" mt={20}>
           No patient found.
         </Typography>
       ) : (
