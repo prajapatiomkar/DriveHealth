@@ -8,6 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { NavLink, Outlet } from "react-router";
+import LogoutButton from "../components/LogoutButton";
 
 export default function Dashboard() {
   return (
@@ -29,29 +30,39 @@ export default function Dashboard() {
           Dashboard
         </Typography>
         <Divider />
-        <List>
-          {[
-            { text: "Add Patients", path: "add-patients" },
-            { text: "Patient List", path: "patients" },
-            { text: "Search Patients", path: "search" },
-            { text: "Select File", path: "select-file" },
-          ].map(({ text, path }) => (
-            <NavLink
-              key={text}
-              to={path}
-              style={({ isActive }: any) => ({
-                textDecoration: "none",
-                color: isActive ? "#1976d2" : "black",
-              })}
-            >
-              <ListItem key={text} disablePadding>
-                <ListItemButton>
-                  <ListItemText primary={text} />
-                </ListItemButton>
-              </ListItem>
-            </NavLink>
-          ))}
-        </List>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100vh", // Make box take full height
+            padding: 2, // Add some padding
+          }}
+        >
+          <List sx={{ flexGrow: 1 }}>
+            {[
+              { text: "Add Patients", path: "add-patients" },
+              { text: "Patient List", path: "patients" },
+              { text: "Search Patients", path: "search" },
+              { text: "Select File", path: "select-file" },
+            ].map(({ text, path }) => (
+              <NavLink
+                key={text}
+                to={path}
+                style={({ isActive }: any) => ({
+                  textDecoration: "none",
+                  color: isActive ? "#1976d2" : "black",
+                })}
+              >
+                <ListItem key={text} disablePadding>
+                  <ListItemButton>
+                    <ListItemText primary={text} />
+                  </ListItemButton>
+                </ListItem>
+              </NavLink>
+            ))}
+          </List>
+          <LogoutButton />
+        </Box>
       </Box>
 
       <Box
