@@ -82,40 +82,74 @@ export class GoogleDriveService {
     }
   }
 
-  private async ensureSheetExists(
-    sheets: any,
+  async ensureSheetExists(
+    sheets,
     spreadsheetId: string,
     sheetName: string,
-    headers?: string[],
+    headers: string[],
   ) {
-    const sheetMetadata = await sheets.spreadsheets.get({
-      spreadsheetId: spreadsheetId,
-    });
-
-    const existingSheet = sheetMetadata.data.sheets.find(
-      (sheet) => sheet.properties.title === sheetName,
-    );
-
-    if (!existingSheet) {
-      await sheets.spreadsheets.batchUpdate({
+    try {
+      let sheetExists = false;
+      const spreadsheet = await sheets.spreadsheets.get({
         spreadsheetId: spreadsheetId,
-        requestBody: {
-          requests: [
-            {
-              addSheet: {
-                properties: {
-                  title: sheetName,
+      });
+
+      const existingSheets = spreadsheet.data.sheets;
+      if (existingSheets) {
+        for (const sheet of existingSheets) {
+          if (sheet.properties.title === sheetName) {
+            sheetExists = true;
+            break;
+          }
+        }
+      }
+
+      if (!sheetExists) {
+        await sheets.spreadsheets.batchUpdate({
+          spreadsheetId: spreadsheetId,
+          requestBody: {
+            requests: [
+              {
+                addSheet: {
+                  properties: {
+                    title: sheetName,
+                  },
                 },
               },
-            },
-          ],
-        },
-      });
-      this.logger.log(`Created sheet: ${sheetName}`);
-      if (headers && headers.length > 0) {
-        await this.setHeaderRow(sheets, spreadsheetId, sheetName, headers);
-        this.logger.log(`Added header row to sheet: ${sheetName}`);
+            ],
+          },
+        });
+        console.log(`Sheet "${sheetName}" created.`);
       }
+
+      // Check if the sheet is empty (no data rows)
+      const valuesResponse = await sheets.spreadsheets.values.get({
+        spreadsheetId: spreadsheetId,
+        range: `${sheetName}!A1`,
+      });
+
+      const values = valuesResponse.data.values;
+
+      if (
+        !values ||
+        values.length === 0 ||
+        !values[0] ||
+        values[0].length === 0
+      ) {
+        // Sheet is empty, add headers
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: spreadsheetId,
+          range: `${sheetName}!A1`,
+          valueInputOption: 'USER_ENTERED',
+          requestBody: {
+            values: [headers],
+          },
+        });
+        console.log(`Headers added to sheet "${sheetName}".`);
+      }
+    } catch (error) {
+      console.error(`Error ensuring sheet exists: ${error.message}`);
+      throw error;
     }
   }
 
