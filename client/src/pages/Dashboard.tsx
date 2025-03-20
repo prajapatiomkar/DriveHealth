@@ -7,16 +7,15 @@ import {
   Box,
   Typography,
 } from "@mui/material";
-import { NavLink, Outlet } from "react-router"; // Correct import
+import { NavLink, Outlet } from "react-router";
 
 export default function Dashboard() {
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
-      {/* Sidebar */}
       <Box
         sx={{
-          width: "250px", // Width of the sidebar
-          backgroundColor: "#f5f5f5", // Light gray background
+          width: "250px",
+          backgroundColor: "#f5f5f5",
           padding: 2,
           display: "flex",
           flexDirection: "column",
@@ -33,7 +32,7 @@ export default function Dashboard() {
         <List>
           {[
             { text: "Add Patients", path: "add-patients" },
-            { text: "Patient List", path: "patients" }, // Corrected path
+            { text: "Patient List", path: "patients" },
             { text: "Search Patients", path: "search" },
             { text: "Select File", path: "select-file" },
           ].map(({ text, path }) => (
@@ -41,8 +40,8 @@ export default function Dashboard() {
               key={text}
               to={path}
               style={({ isActive }: any) => ({
-                textDecoration: "none", // Remove underline
-                color: isActive ? "#1976d2" : "black", // Active color
+                textDecoration: "none",
+                color: isActive ? "#1976d2" : "black",
               })}
             >
               <ListItem key={text} disablePadding>
@@ -55,16 +54,14 @@ export default function Dashboard() {
         </List>
       </Box>
 
-      {/* Content Area */}
       <Box
         sx={{
-          flexGrow: 1, // Ensures the content area takes the remaining space
+          flexGrow: 1,
           padding: 2,
           backgroundColor: "#ffffff",
         }}
       >
         <Outlet />
-        {/* The content for each route will be rendered here via Outlet */}
       </Box>
     </Box>
   );

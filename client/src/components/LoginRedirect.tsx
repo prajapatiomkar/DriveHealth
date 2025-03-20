@@ -6,10 +6,9 @@ const LoginRedirect = () => {
     const token = params.get("token");
 
     if (token) {
-      localStorage.setItem("googleAccessToken", token); // Store token
-      window.location.href = "/dashboard"; // Redirect to dashboard
+      localStorage.setItem("googleAccessToken", token);
+      window.location.href = "/dashboard/select-file";
     } else {
-      // Redirect to backend for Google OAuth if not authenticated
       window.location.href = "http://localhost:5000/auth/google";
     }
   }, []);

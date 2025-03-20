@@ -12,7 +12,6 @@ export class AuthController {
   async googleAuthRedirect(@Req() req, @Res() res) {
     const { accessToken } = req.user;
 
-    // Redirect back to the frontend with the token
     res.redirect(`http://localhost:3000?token=${accessToken}`);
   }
 }

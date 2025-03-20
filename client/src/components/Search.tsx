@@ -49,7 +49,7 @@ export default function Search() {
 
       setSearchResults(response.data);
     } catch (error) {
-      console.error("❌ Error searching patient by ID:", error);
+      console.error("Error searching patient by ID:", error);
       alert(
         "Failed to search patient by ID. Please check the console for details."
       );

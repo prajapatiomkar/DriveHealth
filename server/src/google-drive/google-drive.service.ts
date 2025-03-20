@@ -25,7 +25,6 @@ export class GoogleDriveService {
 
       const sheets = await this.getSheetsInstance();
 
-      // Ensure the single sheet exists with combined headers
       await this.ensureSheetExists(sheets, sheetIdToUse, 'PatientData', [
         'patientId',
         'patientName',
@@ -81,20 +80,6 @@ export class GoogleDriveService {
       this.logger.error(`Full error object: ${JSON.stringify(error)}`);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-  }
-
-  private async createNewGoogleSheet(): Promise<string> {
-    const sheets = await this.getSheetsInstance();
-
-    const response = await sheets.spreadsheets.create({
-      requestBody: {
-        properties: {
-          title: 'Combined Patient Data',
-        },
-      },
-    });
-
-    return response.data.spreadsheetId;
   }
 
   private async ensureSheetExists(
@@ -219,7 +204,7 @@ export class GoogleDriveService {
     const sheets = await this.getSheetsInstance();
 
     try {
-      const range = 'PatientData'; // Get all data from the PatientData sheet
+      const range = 'PatientData';
       const response = await sheets.spreadsheets.values.get({
         spreadsheetId: selectedSheetId,
         range: range,
@@ -319,7 +304,7 @@ export class GoogleDriveService {
     const sheets = await this.getSheetsInstance();
 
     try {
-      const range = 'PatientData!A:A'; // Assuming patientId is in column A
+      const range = 'PatientData!A:A';
       const response = await sheets.spreadsheets.values.get({
         spreadsheetId: selectedSheetId,
         range: range,
@@ -330,7 +315,7 @@ export class GoogleDriveService {
 
       for (let i = 0; i < existingRows.length; i++) {
         if (existingRows[i][0] === patientId) {
-          rowIndex = i + 1; // Row index is 1-based
+          rowIndex = i + 1;
           break;
         }
       }
@@ -383,7 +368,7 @@ export class GoogleDriveService {
     const sheets = await this.getSheetsInstance();
 
     try {
-      const range = 'PatientData!A:A'; // Assuming patientId is in column A
+      const range = 'PatientData!A:A';
       const response = await sheets.spreadsheets.values.get({
         spreadsheetId: selectedSheetId,
         range: range,
@@ -394,17 +379,17 @@ export class GoogleDriveService {
 
       for (let i = 0; i < existingRows.length; i++) {
         if (existingRows[i][0] === patientId) {
-          rowIndex = i + 1; // Row index is 1-based
+          rowIndex = i + 1;
           break;
         }
       }
 
       if (rowIndex === -1) {
-        return []; // Return empty array if patient not found
+        return [];
       }
 
       const rowRange = `PatientData!A${rowIndex}:${String.fromCharCode(
-        64 + 15, // Assuming 15 columns
+        64 + 15,
       )}${rowIndex}`;
 
       const rowResponse = await sheets.spreadsheets.values.get({

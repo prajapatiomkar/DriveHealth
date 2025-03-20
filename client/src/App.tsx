@@ -5,7 +5,7 @@ import Search from "./components/Search";
 import SelectFile from "./components/SelectFile";
 import Dashboard from "./pages/Dashboard";
 import LoginRedirect from "./components/LoginRedirect";
-import PatientList from "./components/PatientList"; // Corrected import
+import PatientList from "./components/PatientList";
 import EditPatient from "./components/EditPatients";
 
 function App() {

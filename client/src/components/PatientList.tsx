@@ -58,7 +58,7 @@ const PatientList = () => {
 
       setPatients(response.data);
     } catch (error) {
-      console.error("❌ Error fetching patients:", error);
+      console.error("Error fetching patients:", error);
       alert(
         "Failed to fetch patient data. Please check the console for details."
       );

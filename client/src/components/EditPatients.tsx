@@ -67,11 +67,9 @@ const EditPatient = ({ patientId, onClose }: any) => {
           }
         );
 
-        console.log("API Response:", response.data); // Log the response
-
         setFormData(response.data);
       } catch (error) {
-        console.error("❌ Error fetching patient data:", error);
+        console.error("Error fetching patient data:", error);
         alert(
           "Failed to fetch patient data. Please check the console for details."
         );
@@ -156,7 +154,7 @@ const EditPatient = ({ patientId, onClose }: any) => {
               "Content-Type": "application/json",
             },
             params: {
-              selectedSheetId: sheetId, // Pass the sheetId as a query parameter
+              selectedSheetId: sheetId,
             },
           }
         );
@@ -164,7 +162,7 @@ const EditPatient = ({ patientId, onClose }: any) => {
         alert(`Patient data updated successfully!`);
         onClose();
       } catch (error) {
-        console.error("❌ Error updating patient data:", error);
+        console.error("Error updating patient data:", error);
         alert(
           "Failed to update patient data. Please check the console for details."
         );

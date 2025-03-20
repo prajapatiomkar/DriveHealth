@@ -49,7 +49,7 @@ export default function SelectFile() {
         name: doc[window.google.picker.Document.NAME],
       };
       setSelectedFile(selected);
-      localStorage.setItem("selectedSheetId", selected.id); // Save sheet ID to local storage
+      localStorage.setItem("selectedSheetId", selected.id);
     }
   };
 

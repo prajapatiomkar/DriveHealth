@@ -15,7 +15,7 @@ const steps = ["Patient Details", "Prescription Details", "Physician Details"];
 
 const AddPatient = ({}) => {
   type FormDataType = {
-    [key: string]: string; // Allows string indexing
+    [key: string]: string;
   };
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<FormDataType>({
@@ -40,7 +40,7 @@ const AddPatient = ({}) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: false }); // Clear error when user types
+    setErrors({ ...errors, [e.target.name]: false });
   };
 
   const validateFields = (fields: string[]) => {
@@ -117,9 +117,9 @@ const AddPatient = ({}) => {
           return;
         }
 
-        const response = await axios.post(
+        await axios.post(
           "http://localhost:5000/google-drive/create-patient-file",
-          { ...formData, selectedSheetId: sheetId }, // Include sheetId in request body
+          { ...formData, selectedSheetId: sheetId },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -130,7 +130,7 @@ const AddPatient = ({}) => {
 
         alert(`Patient data appended successfully!`);
       } catch (error) {
-        console.error("❌ Error creating patient file:", error);
+        console.error("Error creating patient file:", error);
         alert(
           "Failed to create patient file. Please check the console for details."
         );
